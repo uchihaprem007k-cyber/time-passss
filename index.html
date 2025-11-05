@@ -108,25 +108,77 @@
     }
 
     @keyframes floatUp {
-        0% {
-            transform: translateY(100vh) rotate(0deg);
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-20vh) rotate(360deg);
-            opacity: 0;
-        }
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+        font-size: 20px;
+        color: #fff;
+        text-shadow: 0 0 10px #ff66a3;
+        font-weight: bold;
+    }
+
+    /* HAPPI PAGE */
+    .happi-page {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #fff0f5, #ffe4e1, #ffd6f6);
+        animation: fadeIn 1.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .happi-text {
+        font-size: 70px;
+        color: #ff4d6d;
+        text-shadow: 0 0 25px #ff80bf, 0 0 50px #ffb6c1;
+        animation: pop 1.5s infinite;
+    }
+
+    @keyframes pop {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* MEDIA QUERIES */
+    @media (max-width: 600px) {
+        .heart { font-size: 100px; }
+        .ice-cream { font-size: 90px; top: 45%; }
+        .message { font-size: 20px; top: 65%; padding: 0 10px; }
+        #yes, #no { font-size: 18px; top: 78%; padding: 10px 18px; }
+        .happi-text { font-size: 48px; }
     }
 </style>
 </head>
 <body>
 
-<div class="heart" id="heart">❤️</div>
-<div class="ice-cream" id="iceCream">🍦🍦🍨</div>
-<div class="message" id="message">CAN WE EAT ICE CREAM TOGETHER ? ?</div>
+<div id="main">
+    <div class="heart" id="heart">❤️</div>
+    <div class="ice-cream" id="iceCream">🍦🍦🍨</div>
+    <div class="message" id="message">CAN WE EAT ICE CREAM TOGETHER ? ?</div>
 
-<button id="yes">YES</button>
-<button id="no">NO</button>
+    <button id="yes">YES</button>
+    <button id="no">NO</button>
+
+    <div class="footer">✨ SMOLLLL SARAH ✨</div>
+</div>
+
+<div id="happiPage" class="happi-page">
+    <div class="happi-text">HAPPI HAPPI HAPPI 😭❤️</div>
+    <div class="footer">✨ SMOLLLL SARAH ✨</div>
+</div>
 
 <script>
     let yesBtn = document.getElementById("yes");
@@ -134,16 +186,17 @@
     let message = document.getElementById("message");
     let heart = document.getElementById("heart");
     let iceCream = document.getElementById("iceCream");
+    let main = document.getElementById("main");
+    let happiPage = document.getElementById("happiPage");
 
     let yesSize = 22;
-    let noSize = 22;
     let noClickCount = 0;
-    let yesMoving = false;
+    let hoverEnabled = false;
 
     const pleaseMessages = [
         "Please can we? 🥺",
         "Pretty please? 🌸",
-        "Do you hate me ? 🙏",
+        "Pleaseeeeeeeeeeeeeeeeeee 🥺",
         "Oh pleaseee ❤️",
         "Please, just this once 😇",
         "Pretty pretty please? 💖",
@@ -158,8 +211,8 @@
         let newX = rect.left + offsetX;
         let newY = rect.top + offsetY;
 
-        newX = Math.max(0, Math.min(window.innerWidth - yesBtn.offsetWidth, newX));
-        newY = Math.max(0, Math.min(window.innerHeight - yesBtn.offsetHeight, newY));
+        newX = Math.max(0, Math.min(window.innerWidth - 100, newX));
+        newY = Math.max(0, Math.min(window.innerHeight - 60, newY));
 
         return { x: newX, y: newY };
     }
@@ -167,44 +220,59 @@
     function moveButtonRandomly(button) {
         let targetElement = Math.random() < 0.5 ? heart : iceCream;
         let pos = getRandomPositionNear(targetElement);
-
         button.style.left = pos.x + "px";
         button.style.top = pos.y + "px";
     }
 
-    yesBtn.addEventListener("mouseenter", function() {
-        if (yesMoving) {
-            moveButtonRandomly(yesBtn);
-        }
-    });
-
     yesBtn.addEventListener("click", function() {
-        if (message.innerText === "Do you hate me ? 🙏") {
-            moveButtonRandomly(yesBtn); // YES moves away
-        } else {
-            message.innerText = "🥰 Yay! Let's eat together ❤️";
-            yesBtn.style.background = "linear-gradient(145deg, #ff9ec3, #ff66a3)";
-        }
+        main.style.transition = "opacity 1s ease";
+        main.style.opacity = 0;
+        setTimeout(() => {
+            main.style.display = "none";
+            happiPage.style.display = "flex";
+            launchConfetti();
+        }, 800);
     });
 
     noBtn.addEventListener("click", function() {
         noClickCount++;
-        if (noClickCount >= pleaseMessages.length) noClickCount = 0;
-
-        message.innerText = pleaseMessages[noClickCount];
-
-        if (message.innerText === "Do you hate me ? 🙏") {
-            noBtn.style.fontSize = "28px";
-            yesMoving = true;
-        } else {
-            noBtn.style.fontSize = noSize + "px";
-            yesMoving = false;
-            yesSize += 2; // Increase YES size on NO click
-            yesBtn.style.fontSize = yesSize + "px";
-        }
-
+        message.innerText = pleaseMessages[noClickCount % pleaseMessages.length];
         moveButtonRandomly(noBtn);
+
+        yesSize += 2;
+        yesBtn.style.fontSize = yesSize + "px";
+
+        if (noClickCount >= 5) {
+            hoverEnabled = true;
+        }
     });
+
+    if (hoverEnabled) {
+        noBtn.addEventListener("mouseenter", function() {
+            moveButtonRandomly(noBtn);
+        });
+    }
+
+    function launchConfetti() {
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti(Object.assign({}, defaults, {
+                particleCount,
+                origin: { x: randomInRange(0, 1), y: Math.random() - 0.2 }
+            }));
+        }, 250);
+    }
 
     function createHeartsAndIceCreams() {
         const heartElem = document.createElement("div");
@@ -230,6 +298,9 @@
     }
     setInterval(createHeartsAndIceCreams, 300);
 </script>
+
+<!-- Confetti CDN -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 </body>
 </html>
